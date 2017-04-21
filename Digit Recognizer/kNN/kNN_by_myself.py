@@ -8,6 +8,7 @@
 from numpy import *
 import operator
 import csv
+import time
 def toInt(array):
     array=mat(array)
     m,n=shape(array)
@@ -49,16 +50,6 @@ def loadTestData():
     data=array(l)
     return nomalizing(toInt(data))  #  data 28000*784
 
-def loadTestResult():
-    l=[]
-    with open('knn_benchmark.csv') as file:
-         lines=csv.reader(file)
-         for line in lines:
-             l.append(line)
-     #28001*2
-    l.remove(l[0])
-    label=array(l)
-    return toInt(label[:,1])  #  label 28000*1
 
 #dataSet:m*n   labels:m*1  inX:1*n
 def classify(inX, dataSet, labels, k):
@@ -90,17 +81,15 @@ def saveResult(result):
 def handwritingClassTest():
     trainData,trainLabel=loadTrainData()
     testData=loadTestData()
-    testLabel=loadTestResult()
     m,n=shape(testData)
-    errorCount=0
     resultList=[]
+    st = time.clock()
     for i in range(m):
          classifierResult = classify(testData[i], trainData, trainLabel.transpose(), 5)
          resultList.append(classifierResult)
-         print "the classifier came back with: %d, the real answer is: %d" % (classifierResult, testLabel[0,i])
-         if (classifierResult != testLabel[0,i]): errorCount += 1.0
-    print "\nthe total number of errors is: %d" % errorCount
-    print "\nthe total error rate is: %f" % (errorCount/float(m))
+         p = round((i + 1) * 100 / m)
+         duration = round(time.clock() - st, 2)
+         print("进度:{0}%，已耗时:{1}s".format(p, duration), end="\r")
     saveResult(resultList)
 '''    
 trainData[0:20000], trainLabel.transpose()[0:20000]
